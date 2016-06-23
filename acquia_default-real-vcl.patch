@@ -1,0 +1,41 @@
+--- template_v3.vcl	2016-06-23 13:56:16.000000000 +1200
++++ default-real.vcl	2016-06-23 11:58:36.000000000 +1200
+@@ -1,5 +1,6 @@
+ # 2015042801
+ # Default Varnish cache policy for Acquia Hosting
++import digest;
+ 
+ # The default backend is specified in another file and should not be declared here.
+ # All other backends may be declared here.
+@@ -102,9 +103,30 @@ sub vcl_recv {
+     return(pass);
+   }
+ 
++  # Acquia Authcache module integration. If the user is logged in and has an HMAC token
++  # We can attempt to authenticate it to allow authcaching to take place.
++  if (req.http.cookie ~ "acquia_hmac" && req.http.cookie ~ "(^|;\s*)(S?SESS[a-zA-Z0-9]*)=") {
++
++    # These headers are communicated between Varnish and the Drupal servers only. They are not
++    # visible to the browser (and never should be). These headers are for debugging purposes
++    # and can be viewed using varnishlog -b.
++
++    # The drupal_private_key header should match the drupal_private_key variable value in your
++    # Drupal site.
++    set req.http.drupal_private_key = "ow395WxnV-ZWdCPQEKAy0IOsQwOLxGQ7hcCUATvdq2U";
++    set req.http.acquia_key = regsuball(req.http.cookie, "^.*acquia_key=([a-zA-Z0-9]+).*$", "\1");
++    set req.http.acquia_hmac = regsuball(req.http.cookie, "^.*acquia_hmac=([a-zA-Z0-9]+).*$", "\1");
++    set req.http.varnish_hmac = digest.hmac_sha256(req.http.drupal_private_key, req.http.acquia_key);
++
++    # If the HMAC is authenticated then set the X-Authcache-Key which allows Varnish
++    # to pull from an varied cache store.
++    if (req.http.varnish_hmac == req.http.acquia_hmac) {
++      set req.http.X-Authcache-Key = req.http.acquia_key;
++    }
++  }
+   # Don't check cache if the Drupal session cookie is set.
+   # Pressflow pages don't send this cookie to anon users.
+-  if (req.http.cookie ~ "(^|;\s*)(S?SESS[a-zA-Z0-9]*)=") {
++  else if (req.http.cookie ~ "(^|;\s*)(S?SESS[a-zA-Z0-9]*)=") {
+     return(pass);
+   }
+ 

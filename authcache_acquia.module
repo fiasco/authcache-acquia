@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Implements hook_boot().
+ */
+function authcache_acquia_boot() {
+    if (isset($_SERVER['HTTP_X_AUTHCACHE_KEY'])) {
+      $initial_key = $_SERVER['HTTP_X_AUTHCACHE_KEY'];
+    }
+    else {
+      $initial_key = authcache_backend_anonymous_key();
+    }
+
+    $vary_header = variable_get('authcache_acquia_vary', 'X-Authcache-Key');
+    authcache_backend_init('authcache_acquia', $vary_header, $initial_key);
+}
+
+
+/**
+ * Implements hook_authcache_backend_cache_save().
+ */
+function authcache_acquia_authcache_backend_cache_save($data, $headers, $page_compressed) {
+  // Nothing to do. However a hook-implementation is required to signal the
+  // main module that a cache backend exists.
+}
+
+/**
+ * Implements hook_authcache_cookie().
+ */
+function authcache_acquia_authcache_cookie($account) {
+  $authenticated = $account->uid;
+  $enabled = authcache_account_allows_caching($account);
+  $present = $authenticated && $enabled;
+
+  $cookies['acquia_key']['present']  = $present;
+
+  // If the next page request should not be served from cache, then we should
+  // the hmac to prevent Varnish from serving authenticated cached instead.
+  $cookies['acquia_hmac']['present'] = $present && !authcache_precluded();
+
+  if ($present) {
+    $cookies['acquia_key']['value']  = authcache_key();
+    $cookies['acquia_hmac']['value'] = '0x'.hash_hmac('sha256', authcache_key(), drupal_get_private_key());
+  }
+
+  return $cookies;
+}

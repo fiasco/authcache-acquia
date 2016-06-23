@@ -1,0 +1,7 @@
+name = Authcache Acquia Storage Backend
+description = Authcache storage backend for Acquia
+package = Performance and scalability
+core = 7.x
+dependencies[] = authcache
+version = 7.x-1.0-alpha1
+
