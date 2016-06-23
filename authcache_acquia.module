@@ -32,15 +32,15 @@ function authcache_acquia_authcache_cookie($account) {
   $enabled = authcache_account_allows_caching($account);
   $present = $authenticated && $enabled;
 
-  $cookies['acquia_key']['present']  = $present;
+  $cookies['acac_key']['present']  = $present;
 
   // If the next page request should not be served from cache, then we should
   // the hmac to prevent Varnish from serving authenticated cached instead.
-  $cookies['acquia_hmac']['present'] = $present && !authcache_precluded();
+  $cookies['acac_hmac']['present'] = $present && !authcache_precluded();
 
   if ($present) {
-    $cookies['acquia_key']['value']  = authcache_key();
-    $cookies['acquia_hmac']['value'] = '0x'.hash_hmac('sha256', authcache_key(), drupal_get_private_key());
+    $cookies['acac_key']['value']  = authcache_key();
+    $cookies['acac_hmac']['value'] = '0x'.hash_hmac('sha256', authcache_key(), drupal_get_private_key());
   }
 
   return $cookies;
