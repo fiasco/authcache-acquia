@@ -1,6 +1,8 @@
 # Authcache Acquia
 Authcache module integration on Acquia Cloud Enterprise. This is a drop in replacement module for the authcache varnish module specifically for Acquia Cloud.
 
+This module relies on the [digest module](https://github.com/varnish/libvmod-digest) in Varnish to provide HMAC authentication on incoming requests from authenticated users. 
+
 ## Installation
 Prior to attempting to use this module, please be sure to read the Acquia documentation on [Custom Varnish configuration for Acquia Cloud Enterprise sites](https://docs.acquia.com/cloud/performance/custom-varnish). 
 
