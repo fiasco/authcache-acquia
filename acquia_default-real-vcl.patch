@@ -21,7 +21,7 @@
 +
 +    # The drupal_private_key header should match the drupal_private_key variable value in your
 +    # Drupal site.
-+    set req.http.drupal_private_key = "ow395WxnV-ZWdCPQEKAy0IOsQwOLxGQ7hcCUATvdq2U";
++    set req.http.drupal_private_key = "<INSERT YOUR DRUPAL PRIVATE KEY HERE>";
 +    set req.http.acquia_key = regsuball(req.http.cookie, "^.*acquia_key=([a-zA-Z0-9]+).*$", "\1");
 +    set req.http.acquia_hmac = regsuball(req.http.cookie, "^.*acquia_hmac=([a-zA-Z0-9]+).*$", "\1");
 +    set req.http.varnish_hmac = digest.hmac_sha256(req.http.drupal_private_key, req.http.acquia_key);
