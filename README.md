@@ -23,3 +23,6 @@ Place the key accordingly on the line that looks like this:
 ```
 
 Authcache module comes with a module called Authcache Varnish. You will not need this module. It should not be enabled.
+
+## How it works
+![Diagram](https://raw.githubusercontent.com/fiasco/authcache-acquia/master/Acquia%20Authcache%20-%20HTTP%20Workflow.png)
